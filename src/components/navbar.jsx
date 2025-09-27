@@ -11,7 +11,7 @@ function Navbar() {
     }, [isdark]);
 
     return (
-        <div className="navbar bg-base-100 shadow-sm">
+        <div className="navbar sticky bg-base-100 shadow-sm">
             <div className="navbar-start">
                 <div className="dropdown">
                     <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
@@ -22,12 +22,11 @@ function Navbar() {
                         className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
                         <Link to="/" className="p-2">Homepage</Link>
                         <Link to="/dashboard" className="p-2">Dashboard</Link>
-                        <Link to="/quiz" className="p-2">Quiz</Link>
                     </ul>
                 </div>
             </div>
             <div className="navbar-center">
-                <a className="btn btn-ghost text-xl">CareerCompass</a>
+                <Link to="/dashboard" className="btn btn-ghost text-xl">CareerCompass</Link>
             </div>
             <div className="navbar-end">
                 <button className="btn btn-ghost btn-circle">
