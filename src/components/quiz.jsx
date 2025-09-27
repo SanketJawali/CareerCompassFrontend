@@ -1,161 +1,245 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-export default function Quiz() {
-  const [page, setPage] = useState("home");
-  const [currentQ, setCurrentQ] = useState(0);
-  const [score, setScore] = useState(0);
-  const [selected, setSelected] = useState("");
-  const [showAnswer, setShowAnswer] = useState(false);
+// --- Hardcoded Quiz Data ---
+// This structure allows for easy expansion with more sections or question types.
+const quizData = [
+    {
+        id: 1,
+        title: 'Artistic & Creative',
+        questions: [
+            {
+                id: 'q1',
+                text: 'How much do you enjoy activities like drawing, painting, sculpting, or digital art?',
+                type: 'rating',
+            },
+            {
+                id: 'q2',
+                text: 'When you listen to a new song, what are you most likely to focus on?',
+                type: 'multiple-choice',
+                options: ['The emotional feel and the rhythm', 'The lyrics and the story being told', 'The specific instruments and musical structure', 'I just enjoy it without much analysis'],
+            },
+            {
+                id: 'q3',
+                text: 'How appealing is a career in creative writing, journalism, or filmmaking to you?',
+                type: 'rating',
+            },
+        ],
+    },
+    {
+        id: 2,
+        title: 'Scientific & Analytical',
+        questions: [
+            {
+                id: 'q4',
+                text: 'Solving complex logic puzzles or brain-teasers is something I find:',
+                type: 'multiple-choice',
+                options: ['Extremely satisfying and energizing', 'Fun for a little while', 'A bit frustrating but I push through', 'Generally boring and tedious'],
+            },
+            {
+                id: 'q5',
+                text: 'How interested are you in understanding the fundamental principles of how things work (e.g., computers, engines, the human body)?',
+                type: 'rating',
+            },
+            {
+                id: 'q6',
+                text: 'The idea of working with large sets of data, charts, and spreadsheets to find patterns sounds:',
+                type: 'multiple-choice',
+                options: ['Fascinating', 'Manageable and useful', 'Unappealing', 'Completely overwhelming'],
+            },
+        ],
+    },
+    {
+        id: 3,
+        title: 'Social & Communicative',
+        questions: [
+            {
+                id: 'q7',
+                text: 'How comfortable are you with public speaking or presenting your ideas to a group?',
+                type: 'rating',
+            },
+            {
+                id: 'q8',
+                text: 'In a team project, you naturally gravitate towards being the:',
+                type: 'multiple-choice',
+                options: ['Leader who organizes the team and delegates tasks', 'Creative mind who brainstorms innovative ideas', 'Mediator who helps resolve conflicts and ensures harmony', 'Specialist who focuses deeply on their assigned tasks'],
+            },
+            {
+                id: 'q9',
+                text: 'A career involving teaching, counseling, sales, or community management is something you would find:',
+                type: 'multiple-choice',
+                options: ['Very fulfilling', 'Somewhat interesting', 'Draining', 'My worst nightmare'],
+            },
+        ],
+    },
+    {
+        id: 4,
+        title: 'Practical & Hands-On',
+        questions: [
+            {
+                id: 'q10',
+                text: 'How much do you enjoy building, fixing, or assembling things with your hands?',
+                type: 'rating',
+            },
+            {
+                id: 'q11',
+                text: 'Which of these hands-on activities sounds most enjoyable for a free weekend?',
+                type: 'multiple-choice',
+                options: ['Gardening, landscaping, or working with plants', 'Cooking or baking a new, complex recipe from scratch', 'Working on a car, bike, or other machinery', 'Building a piece of furniture or a model kit'],
+            },
+            {
+                id: 'q12',
+                text: 'A career that requires you to be physically active and work outdoors (e.g., a park ranger, a construction manager, an archaeologist) sounds:',
+                type: 'multiple-choice',
+                options: ['Energizing and ideal', 'Interesting, but maybe not as a long-term plan', 'Too physically demanding', 'The opposite of what I want in a job'],
+            },
+        ],
+    },
+];
 
-  const questions = [
-    // Science
-    { section: "Science", question: "What is the chemical symbol of water?", options: ["O2","H2O","CO2","NaCl"], answer: "H2O" },
-    { section: "Science", question: "Which planet is known as the Red Planet?", options: ["Mars","Venus","Jupiter","Saturn"], answer: "Mars" },
-    { section: "Science", question: "The process of converting solid directly to gas is called?", options: ["Sublimation","Evaporation","Condensation","Fusion"], answer: "Sublimation" },
-    { section: "Science", question: "What gas do plants absorb from the atmosphere?", options: ["Oxygen","Nitrogen","Carbon Dioxide","Hydrogen"], answer: "Carbon Dioxide" },
-    { section: "Science", question: "Which vitamin is produced when sunlight hits our skin?", options: ["Vitamin A","Vitamin B","Vitamin C","Vitamin D"], answer: "Vitamin D" },
+const InterestQuiz = () => {
+    const [currentSection, setCurrentSection] = useState(1);
+    const [answers, setAnswers] = useState({});
+    const [showResults, setShowResults] = useState(false);
 
-    // Math
-    { section: "Math", question: "What is 12 × 8?", options: ["96","88","108","100"], answer: "96" },
-    { section: "Math", question: "Square root of 144 is?", options: ["10","11","12","13"], answer: "12" },
-    { section: "Math", question: "What is 15% of 200?", options: ["25","30","35","40"], answer: "30" },
-    { section: "Math", question: "If x + 5 = 12, what is x?", options: ["5","6","7","8"], answer: "7" },
-    { section: "Math", question: "The value of π approximately is?", options: ["2.14","3.14","3.41","2.41"], answer: "3.14" },
+    const handleAnswerChange = (questionId, answer) => {
+        setAnswers(prev => ({ ...prev, [questionId]: answer }));
+    };
 
-    // Art
-    { section: "Art", question: "Who painted the Mona Lisa?", options: ["Van Gogh","Picasso","Leonardo da Vinci","Michelangelo"], answer: "Leonardo da Vinci" },
-    { section: "Art", question: "The Starry Night is painted by?", options: ["Monet","Van Gogh","Rembrandt","Salvador Dalí"], answer: "Van Gogh" },
-    { section: "Art", question: "Which art movement is Picasso known for?", options: ["Cubism","Impressionism","Baroque","Realism"], answer: "Cubism" },
-    { section: "Art", question: "The Scream is painted by?", options: ["Munch","Picasso","Da Vinci","Van Gogh"], answer: "Munch" },
-    { section: "Art", question: "Which is a famous Italian Renaissance artist?", options: ["Leonardo da Vinci","Monet","Matisse","Dali"], answer: "Leonardo da Vinci" },
+    const handleSectionClick = (sectionId) => {
+        setCurrentSection(sectionId);
+    };
 
-    // Commerce
-    { section: "Commerce", question: "GDP stands for?", options: ["Gross Domestic Product","General Domestic Price","Global Demand Process","Gross Data Profit"], answer: "Gross Domestic Product" },
-    { section: "Commerce", question: "Which is NOT a type of business organization?", options: ["Sole Proprietorship","Partnership","Corporation","Triangle"], answer: "Triangle" },
-    { section: "Commerce", question: "What is the currency of Japan?", options: ["Yen","Dollar","Euro","Rupee"], answer: "Yen" },
-    { section: "Commerce", question: "Inflation refers to?", options: ["Increase in prices","Decrease in prices","Stable prices","Currency exchange"], answer: "Increase in prices" },
-    { section: "Commerce", question: "Which financial institution regulates banks in India?", options: ["RBI","IMF","World Bank","SEBI"], answer: "RBI" },
+    const goToNextSection = () => {
+        if (currentSection < quizData.length) {
+            setCurrentSection(currentSection + 1);
+        }
+    };
 
-    // General Knowledge
-    { section: "GK", question: "Who is known as the Father of the Nation (India)?", options: ["Mahatma Gandhi","Nehru","Subhash Chandra Bose","Ambedkar"], answer: "Mahatma Gandhi" },
-    { section: "GK", question: "What is the capital of Japan?", options: ["Beijing","Tokyo","Seoul","Bangkok"], answer: "Tokyo" },
-    { section: "GK", question: "Which is the largest ocean on Earth?", options: ["Atlantic","Indian","Arctic","Pacific"], answer: "Pacific" },
-    { section: "GK", question: "Who invented the telephone?", options: ["Alexander Graham Bell","Thomas Edison","Nikola Tesla","Guglielmo Marconi"], answer: "Alexander Graham Bell" },
-    { section: "GK", question: "Mount Everest is located in which country?", options: ["India","Nepal","China","Bhutan"], answer: "Nepal" },
-  ];
+    const goToPrevSection = () => {
+        if (currentSection > 1) {
+            setCurrentSection(currentSection - 1);
+        }
+    };
 
-  const selectOption = (opt) => {
-    if (!showAnswer) {
-      setSelected(opt);
-      setShowAnswer(true);
-      if (opt === questions[currentQ].answer) setScore(score + 1);
-    }
-  };
+    const handleSubmit = () => {
+        console.log("Final Answers:", answers);
+        setShowResults(true); // Show the results modal
+    };
 
-  const nextQuestion = () => {
-    setSelected("");
-    setShowAnswer(false);
-    if (currentQ + 1 < questions.length) {
-      setCurrentQ(currentQ + 1);
-    } else {
-      setPage("result");
-    }
-  };
+    const activeSection = quizData.find(section => section.id === currentSection);
+    const totalQuestions = quizData.reduce((acc, section) => acc + section.questions.length, 0);
+    const answeredQuestions = Object.keys(answers).length;
+    const progress = (answeredQuestions / totalQuestions) * 100;
 
-  const restartQuiz = () => {
-    setPage("home");
-    setCurrentQ(0);
-    setScore(0);
-    setSelected("");
-    setShowAnswer(false);
-  };
 
-  // ---------------- RENDER ----------------
-  if (page === "home") {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-400 to-purple-500">
-        <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-sm">
-          <h1 className="text-3xl font-bold mb-4 text-purple-600">QuizQuest</h1>
-          <p className="mb-6 text-gray-700">Sharpen your knowledge, test your mind!</p>
-          <img className="w-32 mx-auto mb-6" src="https://cdn-icons-png.flaticon.com/512/3062/3062634.png" alt="Quiz" />
-          <button
-            className="bg-purple-600 text-white px-6 py-3 rounded-full hover:bg-purple-700 transition"
-            onClick={() => setPage("quiz")}
-          >
-            Start Quiz
-          </button>
-        </div>
-      </div>
-    );
-  }
+        <div className="p-4 md:p-8 bg-base-200 min-h-screen">
+            <div className="card w-full max-w-4xl mx-auto bg-base-100 shadow-xl">
+                <div className="card-body p-6 md:p-10">
+                    <h1 className="card-title text-3xl md:text-4xl font-bold mb-4 text-center">Student Interest Assessment</h1>
+                    <p className="text-center mb-6 text-base-content/70">Discover your passions and potential career paths.</p>
 
-  if (page === "quiz") {
-    const currentQuestion = questions[currentQ];
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-green-400 to-blue-500">
-        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full">
-          <div className="mb-2">
-            <span className="text-sm font-semibold px-3 py-1 bg-gray-200 text-gray-700 rounded-full">
-              {currentQuestion.section}
-            </span>
-          </div>
-          <h2 className="text-xl font-semibold mb-2 text-gray-800">
-            Question {currentQ + 1} / {questions.length}
-          </h2>
-          <p className="text-gray-700 mb-6">{currentQuestion.question}</p>
-          <div className="grid gap-4 mb-6">
-            {currentQuestion.options.map((opt, i) => {
-              let baseClass = "px-4 py-2 rounded-lg border transition cursor-pointer";
-              if (showAnswer) {
-                if (opt === currentQuestion.answer) {
-                  baseClass += " bg-green-500 text-white border-green-500";
-                } else if (opt === selected) {
-                  baseClass += " bg-red-500 text-white border-red-500";
-                } else {
-                  baseClass += " bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed";
-                }
-              } else {
-                baseClass += selected === opt ? " bg-purple-600 text-white border-purple-600" : " bg-white text-gray-800 border-gray-300 hover:bg-gray-100";
-              }
-              return (
-                <button
-                  key={i}
-                  className={baseClass}
-                  onClick={() => selectOption(opt)}
-                  disabled={showAnswer}
-                >
-                  {opt}
-                </button>
-              );
-            })}
-          </div>
-          {showAnswer && (
-            <button
-              className="bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-700 transition"
-              onClick={nextQuestion}
-            >
-              Next
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
+                    {/* Stepper Navigation */}
+                    <ul className="steps w-full mb-8">
+                        {quizData.map(section => (
+                            <li
+                                key={section.id}
+                                className={`step ${currentSection >= section.id ? 'step-primary' : ''} cursor-pointer`}
+                                onClick={() => handleSectionClick(section.id)}
+                            >
+                                <span className="hidden md:inline break-words">{section.title}</span>
+                            </li>
+                        ))}
+                    </ul>
 
-  if (page === "result") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-yellow-400 to-red-400">
-        <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-sm">
-          <h2 className="text-2xl font-bold mb-4 text-green-600">Quiz Finished 🎉</h2>
-          <p className="text-gray-700 mb-6 text-lg">Your Score: {score} / {questions.length}</p>
-          <button
-            className="bg-purple-600 text-white px-6 py-3 rounded-full hover:bg-purple-700 transition"
-            onClick={restartQuiz}
-          >
-            Restart Quiz
-          </button>
+                    {/* Progress Bar */}
+                    <div className="mb-8 px-2">
+                        <progress className="progress progress-success w-full" value={progress} max="100"></progress>
+                        <p className="text-center text-sm mt-1">{answeredQuestions} of {totalQuestions} questions answered</p>
+                    </div>
+
+                    {/* Current Section Title */}
+                    <h2 className="text-2xl font-semibold mb-6 text-accent-focus">{activeSection.title}</h2>
+
+                    {/* Questions */}
+                    <div className="space-y-8">
+                        {activeSection.questions.map((q, index) => (
+                            <div key={q.id} className="form-control p-4 border rounded-lg shadow-sm bg-base-200/30 overflow-hidden">
+                                <label className="label">
+                                    <span className="label-text text-lg font-medium whitespace-normal">{index + 1}. {q.text}</span>
+                                </label>
+
+                                {q.type === 'rating' && (
+                                    <div className="rating rating-lg rating-half mt-2">
+                                        <input type="radio" name={q.id} className="rating-hidden" checked={!answers[q.id]} onChange={() => { }} />
+                                        {[...Array(10)].map((_, i) => (
+                                            <input
+                                                key={i}
+                                                type="radio"
+                                                name={q.id}
+                                                className={`bg-amber-400 mask mask-star-2 ${i % 2 === 0 ? 'mask-half-1' : 'mask-half-2'}`}
+                                                checked={answers[q.id] === `${(i / 2) + 0.5}`}
+                                                onChange={() => handleAnswerChange(q.id, `${(i / 2) + 0.5}`)}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+
+                                {q.type === 'multiple-choice' && (
+                                    <div className="flex flex-col space-y-2 mt-2">
+                                        {q.options.map(option => (
+                                            <label key={option} className="label cursor-pointer justify-start gap-4 p-3 rounded-lg hover:bg-base-300/50">
+                                                <input
+                                                    type="radio"
+                                                    name={q.id}
+                                                    className="radio radio-accent"
+                                                    checked={answers[q.id] === option}
+                                                    onChange={() => handleAnswerChange(q.id, option)}
+                                                />
+                                                <span className="label-text whitespace-normal">{option}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Navigation Buttons */}
+                    <div className="card-actions justify-between mt-10">
+                        <button className="btn btn-outline" onClick={goToPrevSection} disabled={currentSection === 1}>
+                            Previous
+                        </button>
+                        {currentSection === quizData.length ? (
+                            <button className="btn btn-primary" onClick={handleSubmit}>Submit Quiz</button>
+                        ) : (
+                            <button className="btn btn-secondary" onClick={goToNextSection}>
+                                Next
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Results Modal */}
+            <input type="checkbox" id="results-modal" className="modal-toggle" checked={showResults} onChange={() => { }} />
+            <div className="modal modal-bottom sm:modal-middle" role="dialog">
+                <div className="modal-box">
+                    <h3 className="font-bold text-2xl">Quiz Submitted!</h3>
+                    <p className="py-4">Thank you for completing the assessment. Your responses have been recorded.</p>
+                    <p className="font-semibold">Here's a summary of your answers:</p>
+                    <div className="mockup-code my-4 max-h-60 overflow-y-auto">
+                        <pre><code>{JSON.stringify(answers, null, 2)}</code></pre>
+                    </div>
+                    <div className="modal-action">
+                        <button className="btn" onClick={() => setShowResults(false)}>Close</button>
+                    </div>
+                </div>
+                <label className="modal-backdrop" onClick={() => setShowResults(false)}>Close</label>
+            </div>
         </div>
-      </div>
     );
-  }
-}
+};
+
+export default InterestQuiz;
+
