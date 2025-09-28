@@ -24,17 +24,17 @@ function Dashboard() {
             </Link>
 
             <Link
-                to="/career-mapping"
+                to="/notifier"
                 className={`${navButtonStyles} col-start-2 row-start-1 bg-violet-300 text-violet-800 md:col-start-3 md:row-start-1 md:col-span-2 md:row-span-3 p-4 md:p-10`}
             >
-                Career Mapping
+                Notifier
             </Link>
 
             <Link
-                to="/college-info"
+                to="/college-directory"
                 className={`${navButtonStyles} col-start-1 row-start-2 bg-teal-300 text-teal-800 md:col-start-5 md:row-start-1 md:col-span-2 md:row-span-2 p-4 md:p-10`}
             >
-                College Info
+                College Directory
             </Link>
 
             <Link
@@ -45,10 +45,10 @@ function Dashboard() {
             </Link>
 
             <Link
-                to="/notifier"
+                to="/career-map"
                 className={`${navButtonStyles} col-start-1 row-start-3 bg-emerald-300 text-emerald-800 md:col-start-3 md:row-start-4 md:col-span-2 md:row-span-2 p-4 md:p-10`}
             >
-                Notifier
+                Career Mapping
             </Link>
 
             <Link
